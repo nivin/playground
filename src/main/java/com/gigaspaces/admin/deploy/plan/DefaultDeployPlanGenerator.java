@@ -1,11 +1,14 @@
 package com.gigaspaces.admin.deploy.plan;
 
+import com.gigaspaces.admin.deploy.plan.impl.ApplicationDeployPlanImpl;
+import com.gigaspaces.admin.deploy.plan.impl.InstanceDeployPlanImpl;
+
 import java.util.Map;
 
 public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
 
     @Override
-    public DeployPlan generate(DeployPlanRequest request) {
+    public ApplicationDeployPlan generate(DeployPlanRequest request) {
         if (request.getModules().isEmpty())
             throw new IllegalArgumentException("No modules were specified");
         if (request.getModules().size() != 1)
@@ -20,7 +23,7 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
         return generateModulePlan(module, machineType, numOfMachines);
     }
 
-    private DeployPlan generateModulePlan(Module module, MachineType machineType, int numOfMachines) {
+    private ApplicationDeployPlan generateModulePlan(Module module, MachineType machineType, int numOfMachines) {
         MachineCapabilities[] machinesCapabilities = toMachinesCapabilities(machineType, numOfMachines);
 
         final String schema = module.getClusterInfo().getSchema();
@@ -80,17 +83,17 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
 
     private abstract class FooProcessor {
 
-        protected final DeployPlan deployPlan;
+        protected final ApplicationDeployPlanImpl deployPlan;
         protected final Module module;
         protected final MachineCapabilities[] machinesCapabilities;
 
         protected FooProcessor(Module module, MachineCapabilities[] machinesCapabilities) {
-            this.deployPlan = new DeployPlan();
+            this.deployPlan = new ApplicationDeployPlanImpl();
             this.module = module;
             this.machinesCapabilities = machinesCapabilities;
         }
 
-        protected DeployPlan process() {
+        protected ApplicationDeployPlan process() {
             final int instances = getInstances();
             final int machines = machinesCapabilities.length;
             int machineId = 0;
@@ -127,7 +130,7 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
         @Override
         public boolean process(int machineId, int instanceId) {
             processRequirements(module.getInstanceRequirements(), machinesCapabilities[machineId]);
-            deployPlan.addInstance(machineId, new InstanceDeploymentInfo(instanceId, module.getName()));
+            deployPlan.addInstance(machineId, new InstanceDeployPlanImpl(instanceId, module.getName()));
             return true;
         }
     }
@@ -155,14 +158,14 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
             final Boolean primary = instanceId < partitions ? Boolean.TRUE : Boolean.FALSE;
             if (!primary) {
                 if (machineId < deployPlan.getMachines().size()) {
-                    for (InstanceDeploymentInfo instance : deployPlan.getMachines().get(machineId).getInstances()) {
+                    for (InstanceDeployPlan instance : deployPlan.getMachines().get(machineId).getInstances()) {
                         if (instance.getTag("partitionId").equals(partitionId))
                             return false;
                     }
                 }
             }
             processRequirements(module.getInstanceRequirements(), machinesCapabilities[machineId]);
-            deployPlan.addInstance(machineId, new InstanceDeploymentInfo(instanceId, module.getName())
+            deployPlan.addInstance(machineId, new InstanceDeployPlanImpl(instanceId, module.getName())
                     .tag("partitionId", partitionId)
                     .tag("primary", primary));
             return true;

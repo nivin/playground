@@ -12,12 +12,12 @@ public class StatelessClusterDeploymentTests {
                         .clusterInfo("instances", 1))
                 .machines(1, new MachineType("medium"));
 
-        DeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
         Assert.assertEquals(1, deployPlan.getMachines().size());
-        MachineDeploymentInfo machine1 = deployPlan.getMachines().get(0);
+        MachineDeployPlan machine1 = deployPlan.getMachines().get(0);
         Assert.assertEquals(0, machine1.getMachineId());
         Assert.assertEquals(1, machine1.getInstances().size());
-        InstanceDeploymentInfo instance1 = machine1.getInstances().get(0);
+        InstanceDeployPlan instance1 = machine1.getInstances().get(0);
         Assert.assertEquals("foo", instance1.getModuleName());
         Assert.assertEquals(0, instance1.getInstanceId());
     }
@@ -32,18 +32,18 @@ public class StatelessClusterDeploymentTests {
                 .machines(1, new MachineType("medium")
                         .machineCapability("memory", 2048));
 
-        DeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
         Assert.assertEquals(1, deployPlan.getMachines().size());
 
-        MachineDeploymentInfo machine0 = deployPlan.getMachines().get(0);
+        MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
         Assert.assertEquals(0, machine0.getMachineId());
         Assert.assertEquals(2, machine0.getInstances().size());
 
-        InstanceDeploymentInfo instance0 = machine0.getInstances().get(0);
+        InstanceDeployPlan instance0 = machine0.getInstances().get(0);
         Assert.assertEquals("foo", instance0.getModuleName());
         Assert.assertEquals(0, instance0.getInstanceId());
 
-        InstanceDeploymentInfo instance1 = machine0.getInstances().get(1);
+        InstanceDeployPlan instance1 = machine0.getInstances().get(1);
         Assert.assertEquals("foo", instance1.getModuleName());
         Assert.assertEquals(1, instance1.getInstanceId());
     }
@@ -74,20 +74,20 @@ public class StatelessClusterDeploymentTests {
                         .clusterInfo("instances", 2))
                 .machines(2, new MachineType("medium"));
 
-        DeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
-        MachineDeploymentInfo machine0 = deployPlan.getMachines().get(0);
+        MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
         Assert.assertEquals(0, machine0.getMachineId());
         Assert.assertEquals(1, machine0.getInstances().size());
-        InstanceDeploymentInfo instance0 = machine0.getInstances().get(0);
+        InstanceDeployPlan instance0 = machine0.getInstances().get(0);
         Assert.assertEquals("foo", instance0.getModuleName());
         Assert.assertEquals(0, instance0.getInstanceId());
 
-        MachineDeploymentInfo machine1 = deployPlan.getMachines().get(1);
+        MachineDeployPlan machine1 = deployPlan.getMachines().get(1);
         Assert.assertEquals(1, machine1.getMachineId());
         Assert.assertEquals(1, machine1.getInstances().size());
-        InstanceDeploymentInfo instance1 = machine1.getInstances().get(0);
+        InstanceDeployPlan instance1 = machine1.getInstances().get(0);
         Assert.assertEquals("foo", instance1.getModuleName());
         Assert.assertEquals(1, instance1.getInstanceId());
     }

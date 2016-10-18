@@ -5,5 +5,5 @@ package com.gigaspaces.admin.deploy.plan;
  */
 public abstract class DeployPlanGenerator {
 
-    public abstract DeployPlan generate(DeployPlanRequest request);
+    public abstract ApplicationDeployPlan generate(DeployPlanRequest request);
 }
