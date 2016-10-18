@@ -14,7 +14,10 @@ public class StatelessClusterDeploymentTests {
                                 .clusterInfo("instances", 1)))
                 .machines(1, new MachineType("medium"));
 
+        System.out.println("Generating plan for stateless 1 instances on 1 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
+
         Assert.assertEquals(1, deployPlan.getMachines().size());
         MachineDeployPlan machine1 = deployPlan.getMachines().get(0);
         Assert.assertEquals(0, machine1.getMachineId());
@@ -35,7 +38,10 @@ public class StatelessClusterDeploymentTests {
                 .machines(1, new MachineType("medium")
                         .machineCapability("memory", 2048));
 
+        System.out.println("Generating plan for stateless 2 instances on 1 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
+
         Assert.assertEquals(1, deployPlan.getMachines().size());
 
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
@@ -62,6 +68,7 @@ public class StatelessClusterDeploymentTests {
                 .machines(1, new MachineType("medium")
                         .machineCapability("memory", 1025));
 
+        System.out.println("Generating plan for stateless 2 instances on 1 machines with insufficient memory:");
         try {
             new DefaultApplicationDeployPlanGenerator().generate(request);
             Assert.fail();
@@ -79,7 +86,10 @@ public class StatelessClusterDeploymentTests {
                             .clusterInfo("instances", 2)))
                 .machines(2, new MachineType("medium"));
 
+        System.out.println("Generating plan for stateless 2 instances on 2 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
+
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);

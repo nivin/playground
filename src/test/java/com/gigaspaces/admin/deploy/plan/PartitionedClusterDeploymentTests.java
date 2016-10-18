@@ -14,7 +14,9 @@ public class PartitionedClusterDeploymentTests {
                             .clusterInfo("partitions", 1)))
                 .machines(1, new MachineType("medium"));
 
+        System.out.println("Generating plan for partitioned 1,0 on 1 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
 
         Assert.assertEquals(1, deployPlan.getMachines().size());
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
@@ -33,7 +35,9 @@ public class PartitionedClusterDeploymentTests {
                             .clusterInfo("backupsPerPartition", 1)))
                 .machines(2, new MachineType("medium"));
 
+        System.out.println("Generating plan for partitioned 1,1 on 2 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
 
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
@@ -59,6 +63,7 @@ public class PartitionedClusterDeploymentTests {
                 .machines(1, new MachineType("medium"));
 
         try {
+            System.out.println("Generating plan for partitioned 1,1 on 1 machines:");
             new DefaultApplicationDeployPlanGenerator().generate(request);
             Assert.fail();
         } catch (IllegalStateException e) {
@@ -77,7 +82,9 @@ public class PartitionedClusterDeploymentTests {
                             .clusterInfo("backupsPerPartition", 1)))
                 .machines(2, new MachineType("medium"));
 
+        System.out.println("Generating plan for partitioned 2,1 on 2 machines:");
         ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
 
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
@@ -93,6 +100,37 @@ public class PartitionedClusterDeploymentTests {
         assertPrimary(machine1.getInstances().get(0), 1);
         assertBackup(machine1.getInstances().get(1), 0);
     }
+
+    @Test
+    public void threePartitionsWithBackupTwoMachines() {
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                                .clusterInfo("schema", "partitioned")
+                                .clusterInfo("partitions", 3)
+                                .clusterInfo("backupsPerPartition", 1)))
+                .machines(2, new MachineType("medium"));
+
+        System.out.println("Generating plan for partitioned 3,1 on 2 machines:");
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
+    }
+
+    @Test
+    public void threePartitionsWithBackupThreeMachines() {
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                                .clusterInfo("schema", "partitioned")
+                                .clusterInfo("partitions", 3)
+                                .clusterInfo("backupsPerPartition", 1)))
+                .machines(3, new MachineType("medium"));
+
+        System.out.println("Generating plan for partitioned 3,1 on 3 machines:");
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
+        System.out.println(deployPlan);
+    }
+
 
     private static void assertInstance(InstanceDeployPlan instance, int partitionId, boolean primary) {
         Assert.assertEquals("foo", instance.getModuleName());
