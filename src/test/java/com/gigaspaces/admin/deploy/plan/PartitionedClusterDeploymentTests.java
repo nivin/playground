@@ -4,9 +4,6 @@ import com.gigaspaces.admin.deploy.plan.impl.DefaultApplicationDeployPlanGenerat
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by niv on 10/17/2016.
- */
 public class PartitionedClusterDeploymentTests {
     @Test
     public void singlePartition() {
@@ -88,7 +85,7 @@ public class PartitionedClusterDeploymentTests {
         Assert.assertEquals(0, machine0.getMachineId());
         Assert.assertEquals(2, machine0.getInstances().size());
         assertPrimary(machine0.getInstances().get(0), 0);
-//        assertBackup(machine0.getInstances().get(1), 1);
+        assertBackup(machine0.getInstances().get(1), 1);
 
         MachineDeployPlan machine1 = deployPlan.getMachines().get(1);
         Assert.assertEquals(1, machine1.getMachineId());

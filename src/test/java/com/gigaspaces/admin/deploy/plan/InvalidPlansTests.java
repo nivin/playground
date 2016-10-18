@@ -4,9 +4,6 @@ import com.gigaspaces.admin.deploy.plan.impl.DefaultApplicationDeployPlanGenerat
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by niv on 10/16/2016.
- */
 public class InvalidPlansTests {
 
     @Test

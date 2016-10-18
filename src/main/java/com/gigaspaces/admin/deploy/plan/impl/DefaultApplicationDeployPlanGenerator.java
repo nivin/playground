@@ -42,7 +42,7 @@ public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlan
             processor = new PartitionedProcessor(module, machinesCapabilities);
         else
             throw new IllegalArgumentException("Unsupported cluster schema " + schema);
-        return processor.process();
+        return processor.generate();
     }
 
     private int nextMachine(int machineId, int machines) {
@@ -101,14 +101,14 @@ public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlan
             this.machinesCapabilities = machinesCapabilities;
         }
 
-        protected ApplicationDeployPlan process() {
+        protected ApplicationDeployPlan generate() {
             final int instances = getInstances();
             final int machines = machinesCapabilities.length;
             int machineId = 0;
             for (int instanceId=0 ; instanceId < instances ; instanceId++) {
                 boolean processed = false;
                 for (int i = 0; i < machines && !processed ; i++, machineId = nextMachine(machineId, machines)) {
-                    processed = process(machineId, instanceId);
+                    processed = assign(machineId, instanceId);
                 }
                 if (!processed)
                     throw new IllegalStateException("Failed to find a suitable machine for instance #" + instanceId);
@@ -118,7 +118,7 @@ public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlan
 
         protected abstract int getInstances();
 
-        protected abstract boolean process(int machineId, int instanceId);
+        protected abstract boolean assign(int machineId, int instanceId);
     }
 
     private class StatelessProcessor extends FooProcessor {
@@ -136,7 +136,7 @@ public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlan
         }
 
         @Override
-        public boolean process(int machineId, int instanceId) {
+        public boolean assign(int machineId, int instanceId) {
             processRequirements(module.getInstanceRequirements(), machinesCapabilities[machineId]);
             deployPlan.addInstance(machineId, new InstanceDeployPlanImpl(instanceId, module.getName()));
             return true;
@@ -161,7 +161,7 @@ public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlan
         }
 
         @Override
-        public boolean process(int machineId, int instanceId) {
+        public boolean assign(int machineId, int instanceId) {
             final Integer partitionId = instanceId % partitions;
             final Boolean primary = instanceId < partitions ? Boolean.TRUE : Boolean.FALSE;
             if (!primary) {
