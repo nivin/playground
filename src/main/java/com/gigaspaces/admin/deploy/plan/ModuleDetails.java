@@ -1,20 +1,20 @@
 package com.gigaspaces.admin.deploy.plan;
 
-public class Module {
+public class ModuleDetails {
     private final String name;
     private final ModuleClusterInfo clusterInfo = new ModuleClusterInfo();
     private final InstanceRequirements instanceRequirements = new InstanceRequirements();
 
-    public Module(String name) {
+    public ModuleDetails(String name) {
         this.name = name;
     }
 
-    public Module clusterInfo(String key, Object value) {
+    public ModuleDetails clusterInfo(String key, Object value) {
         this.clusterInfo.add(key, value);
         return this;
     }
 
-    public Module instanceRequirement(String key, Object value) {
+    public ModuleDetails instanceRequirement(String key, Object value) {
         instanceRequirements.add(key, value);
         return this;
     }

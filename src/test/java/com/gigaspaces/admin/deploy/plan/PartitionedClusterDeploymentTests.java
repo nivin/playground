@@ -1,5 +1,6 @@
 package com.gigaspaces.admin.deploy.plan;
 
+import com.gigaspaces.admin.deploy.plan.impl.DefaultApplicationDeployPlanGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,13 +10,14 @@ import org.junit.Test;
 public class PartitionedClusterDeploymentTests {
     @Test
     public void singlePartition() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "partitioned")
-                        .clusterInfo("partitions", 1))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                            .clusterInfo("schema", "partitioned")
+                            .clusterInfo("partitions", 1)))
                 .machines(1, new MachineType("medium"));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
 
         Assert.assertEquals(1, deployPlan.getMachines().size());
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
@@ -26,14 +28,15 @@ public class PartitionedClusterDeploymentTests {
 
     @Test
     public void singlePartitionWithBackup() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "partitioned")
-                        .clusterInfo("partitions", 1)
-                        .clusterInfo("backupsPerPartition", 1))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                            .clusterInfo("schema", "partitioned")
+                            .clusterInfo("partitions", 1)
+                            .clusterInfo("backupsPerPartition", 1)))
                 .machines(2, new MachineType("medium"));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
 
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
@@ -50,15 +53,16 @@ public class PartitionedClusterDeploymentTests {
 
     @Test
     public void singlePartitionWithBackupSameMachine() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "partitioned")
-                        .clusterInfo("partitions", 1)
-                        .clusterInfo("backupsPerPartition", 1))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                            .clusterInfo("schema", "partitioned")
+                            .clusterInfo("partitions", 1)
+                            .clusterInfo("backupsPerPartition", 1)))
                 .machines(1, new MachineType("medium"));
 
         try {
-            new DefaultDeployPlanGenerator().generate(request);
+            new DefaultApplicationDeployPlanGenerator().generate(request);
             Assert.fail();
         } catch (IllegalStateException e) {
             System.out.println("Intercepted expected exception - " + e.getMessage());
@@ -68,14 +72,15 @@ public class PartitionedClusterDeploymentTests {
 
     @Test
     public void twoPartitionsWithBackup() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "partitioned")
-                        .clusterInfo("partitions", 2)
-                        .clusterInfo("backupsPerPartition", 1))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                            .clusterInfo("schema", "partitioned")
+                            .clusterInfo("partitions", 2)
+                            .clusterInfo("backupsPerPartition", 1)))
                 .machines(2, new MachineType("medium"));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
 
         Assert.assertEquals(2, deployPlan.getMachines().size());
 

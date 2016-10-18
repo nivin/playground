@@ -1,29 +1,37 @@
-package com.gigaspaces.admin.deploy.plan;
+package com.gigaspaces.admin.deploy.plan.impl;
 
-import com.gigaspaces.admin.deploy.plan.impl.ApplicationDeployPlanImpl;
-import com.gigaspaces.admin.deploy.plan.impl.InstanceDeployPlanImpl;
+import com.gigaspaces.admin.deploy.plan.*;
 
 import java.util.Map;
 
-public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
+public class DefaultApplicationDeployPlanGenerator extends ApplicationDeployPlanGenerator {
 
     @Override
-    public ApplicationDeployPlan generate(DeployPlanRequest request) {
-        if (request.getModules().isEmpty())
-            throw new IllegalArgumentException("No modules were specified");
-        if (request.getModules().size() != 1)
-            throw new UnsupportedOperationException("Requests with multiple modules are currently not supported");
-        Module module = request.getModules().values().iterator().next();
-        if (request.getMachines().isEmpty())
-            throw new IllegalArgumentException("No machine types were specified");
-        if (request.getMachines().size() != 1)
-            throw new UnsupportedOperationException("Requests with multiple machine types are currently not supported");
+    public ApplicationDeployPlan generate(ApplicationDeployPlanRequest request) {
+        validate(request);
+        // TODO: Support multiple modules
+        ModuleDetails module = request.getApplicationDetails().getModules().values().iterator().next();
+        // TODO: Support multiple machine types
         final MachineType machineType = request.getMachines().keySet().iterator().next();
         final Integer numOfMachines = request.getMachines().get(machineType);
         return generateModulePlan(module, machineType, numOfMachines);
     }
 
-    private ApplicationDeployPlan generateModulePlan(Module module, MachineType machineType, int numOfMachines) {
+    protected void validate(ApplicationDeployPlanRequest request) {
+        final ApplicationDetails application = request.getApplicationDetails();
+        if (application == null)
+            throw new IllegalArgumentException("Application details were not specified");
+        if (application.getModules().isEmpty())
+            throw new IllegalArgumentException("No modules were specified");
+        if (application.getModules().size() != 1)
+            throw new UnsupportedOperationException("Requests with multiple modules are currently not supported");
+        if (request.getMachines().isEmpty())
+            throw new IllegalArgumentException("No machine types were specified");
+        if (request.getMachines().size() != 1)
+            throw new UnsupportedOperationException("Requests with multiple machine types are currently not supported");
+    }
+
+    private ApplicationDeployPlan generateModulePlan(ModuleDetails module, MachineType machineType, int numOfMachines) {
         MachineCapabilities[] machinesCapabilities = toMachinesCapabilities(machineType, numOfMachines);
 
         final String schema = module.getClusterInfo().getSchema();
@@ -84,10 +92,10 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
     private abstract class FooProcessor {
 
         protected final ApplicationDeployPlanImpl deployPlan;
-        protected final Module module;
+        protected final ModuleDetails module;
         protected final MachineCapabilities[] machinesCapabilities;
 
-        protected FooProcessor(Module module, MachineCapabilities[] machinesCapabilities) {
+        protected FooProcessor(ModuleDetails module, MachineCapabilities[] machinesCapabilities) {
             this.deployPlan = new ApplicationDeployPlanImpl();
             this.module = module;
             this.machinesCapabilities = machinesCapabilities;
@@ -117,7 +125,7 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
 
         private final int instances;
 
-        private StatelessProcessor(Module module, MachineCapabilities[] machinesCapabilities) {
+        private StatelessProcessor(ModuleDetails module, MachineCapabilities[] machinesCapabilities) {
             super(module, machinesCapabilities);
             this.instances = toPositiveInteger(module.getClusterInfo().get("instances"), "instances");
         }
@@ -140,7 +148,7 @@ public class DefaultDeployPlanGenerator extends DeployPlanGenerator {
         private final int instances;
         private final int partitions;
 
-        private PartitionedProcessor(Module module, MachineCapabilities[] machinesCapabilities) {
+        private PartitionedProcessor(ModuleDetails module, MachineCapabilities[] machinesCapabilities) {
             super(module, machinesCapabilities);
             this.partitions = toPositiveInteger(module.getClusterInfo().get("partitions"), "partitions");
             final int backupsPerPartition = toInteger(module.getClusterInfo().get("backupsPerPartition", 0), "backupsPerPartition");

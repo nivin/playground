@@ -1,8 +1,5 @@
 package com.gigaspaces.admin.deploy.plan;
 
-/**
- * Created by niv on 10/17/2016.
- */
 public class MachineType {
     private final String name;
     private final MachineCapabilities capabilities = new MachineCapabilities();

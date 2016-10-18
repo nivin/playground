@@ -1,18 +1,20 @@
 package com.gigaspaces.admin.deploy.plan;
 
+import com.gigaspaces.admin.deploy.plan.impl.DefaultApplicationDeployPlanGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class StatelessClusterDeploymentTests {
     @Test
     public void singleInstance() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "stateless")
-                        .clusterInfo("instances", 1))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                                .clusterInfo("schema", "stateless")
+                                .clusterInfo("instances", 1)))
                 .machines(1, new MachineType("medium"));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
         Assert.assertEquals(1, deployPlan.getMachines().size());
         MachineDeployPlan machine1 = deployPlan.getMachines().get(0);
         Assert.assertEquals(0, machine1.getMachineId());
@@ -24,15 +26,16 @@ public class StatelessClusterDeploymentTests {
 
     @Test
     public void twoInstancesSameMachine() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "stateless")
-                        .clusterInfo("instances", 2)
-                        .instanceRequirement("memory", 1024))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                                .clusterInfo("schema", "stateless")
+                                .clusterInfo("instances", 2)
+                                .instanceRequirement("memory", 1024)))
                 .machines(1, new MachineType("medium")
                         .machineCapability("memory", 2048));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
         Assert.assertEquals(1, deployPlan.getMachines().size());
 
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);
@@ -50,16 +53,17 @@ public class StatelessClusterDeploymentTests {
 
     @Test
     public void twoInstancesSameMachineInsufficientMemory() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "stateless")
-                        .clusterInfo("instances", 2)
-                        .instanceRequirement("memory", 1024))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                                .clusterInfo("schema", "stateless")
+                                .clusterInfo("instances", 2)
+                                .instanceRequirement("memory", 1024)))
                 .machines(1, new MachineType("medium")
                         .machineCapability("memory", 1025));
 
         try {
-            new DefaultDeployPlanGenerator().generate(request);
+            new DefaultApplicationDeployPlanGenerator().generate(request);
             Assert.fail();
         } catch (IllegalStateException e) {
             System.out.println("Intercepted expected exception - " + e.getMessage());
@@ -68,13 +72,14 @@ public class StatelessClusterDeploymentTests {
 
     @Test
     public void twoInstancesTwoMachines() {
-        DeployPlanRequest request = new DeployPlanRequest()
-                .module(new Module("foo")
-                        .clusterInfo("schema", "stateless")
-                        .clusterInfo("instances", 2))
+        ApplicationDeployPlanRequest request = new ApplicationDeployPlanRequest()
+                .application(new ApplicationDetails("testApp")
+                        .module(new ModuleDetails("foo")
+                            .clusterInfo("schema", "stateless")
+                            .clusterInfo("instances", 2)))
                 .machines(2, new MachineType("medium"));
 
-        ApplicationDeployPlan deployPlan = new DefaultDeployPlanGenerator().generate(request);
+        ApplicationDeployPlan deployPlan = new DefaultApplicationDeployPlanGenerator().generate(request);
         Assert.assertEquals(2, deployPlan.getMachines().size());
 
         MachineDeployPlan machine0 = deployPlan.getMachines().get(0);

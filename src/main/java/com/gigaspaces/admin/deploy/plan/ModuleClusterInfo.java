@@ -12,12 +12,13 @@ public class ModuleClusterInfo {
     }
 
     public String getSchema() {
-        return String.valueOf(clusterInfo.get("schema"));
+        return String.valueOf(get("schema"));
     }
 
     public Object get(String key) {
         return clusterInfo.get(key);
     }
+
     public Object get(String key, Object defaultValue) {
         return clusterInfo.containsKey(key) ? clusterInfo.get(key) : defaultValue;
     }
